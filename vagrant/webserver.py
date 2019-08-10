@@ -17,10 +17,11 @@ class WebserverHandler(BaseHTTPRequestHandler):
 				self.end_headers()
 
 				output = "<html><body>"
+				output += "<h1><a href='/restaurants/new'>Add New Restaurant</a></h1>"
 				for restaurant in restaurants:
-					output += "<h1>%s</h1>" % restaurant.name
+					output += "<h2>%s</h2>" % restaurant.name
 					output += "<h3><a href='/restaurants/%s/edit'>Edit</a></h3>" % restaurant.id
-					output += "<h3><a href='#'>Delete</a></h3>"
+					output += "<h3><a href='/restaurants/%s/delete'>Delete</a></h3>" % restaurant.id
 					output += "<br>"
 				output += "</body></html>"
 
@@ -53,6 +54,22 @@ class WebserverHandler(BaseHTTPRequestHandler):
 					output += "<form method='POST' enctype='multipart/form-data' action='/restaurants/%s/edit'>" % restaurantId
 					output += "<input name='newRestaurantName' type='text' placeholder='%s'>" % restaurant.name
 					output += "<input type='submit' value='Rename'></form>"
+					output += "</body></html>"
+					self.wfile.write(output)
+					print output
+
+			if self.path.endswith("/delete"):
+				restaurantId = self.path.split("/")[2]
+				restaurant = self.db.filterRestaurants(id = restaurantId)[0]
+				if restaurant:
+					self.send_response(200)
+					self.send_header('Content-type', 'text/html')
+					self.end_headers()
+
+					output = "<html><body>"
+					output += "<h1>Are you sure you want to delete %s?</h1>" % restaurant.name
+					output += "<form method='POST' enctype='multipart/form-data' action='/restaurants/%s/delete'>" % restaurant.id
+					output += "<input type='submit' value='Delete'></form>"
 					output += "</body></html>"
 					self.wfile.write(output)
 					print output
@@ -91,7 +108,18 @@ class WebserverHandler(BaseHTTPRequestHandler):
 					self.send_header('Content-type', 'text/html')
 					self.send_header('Location', '/restaurants')
 					self.end_headers()
-		
+
+			if self.path.endswith('/delete'):
+				restaurantId = self.path.split("/")[2]
+
+				restaurant = self.db.filterRestaurants(id = restaurantId)[0]
+				self.db.removeRestaurant(restaurant)
+
+				self.send_response(301)
+				self.send_header('Content-type', 'text/html')
+				self.send_header('Location', '/restaurants')
+				self.end_headers()
+
 		except:
 			pass
 
