@@ -24,7 +24,7 @@ class RestaurantDB:
 		return self.__session.query(Restaurant).all()
 	
 	def filterRestaurants(self, **kwargs):
-		return self.__session.query(Restaurant).filter_by(**kwargs)
+		return self.__session.query(Restaurant).filter_by(**kwargs).all()
 	
 	# MenuItem operations
 	def addMenuItem(self, menuItem):
@@ -39,4 +39,4 @@ class RestaurantDB:
 		return self.__session.query(MenuItem).all()
 	
 	def filterMenuItems(self, **kwargs):
-		return self.__session.query(MenuItem).filter_by(**kwargs)
+		return self.__session.query(MenuItem).filter_by(**kwargs).all()
